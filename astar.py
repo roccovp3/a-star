@@ -9,17 +9,23 @@ def main():
     start = (0, 0)
     goal = (0, 0)
 
-    j = 0
-    while j < len(img_array[0]):
+    start = None
+    for j in range(len(img_array[0])):
         if img_array[0][j]:
             start = (0, j)
-        j += 1
+            break
+        elif img_array[j][0]:
+            start = (j, 0)
+            break
 
-    j = 0
-    while j < len(img_array[-1]):
-        if img_array[-1][j]:
-            goal = (len(img_array)-1, j)
-        j += 1
+    goal = None
+    for j in range(len(img_array[-1])):
+        if img_array[-1][j] and start != (len(img_array) - 1, j):
+            goal = (len(img_array) - 1, j)
+            break
+        elif img_array[j][-1] and start != (j, len(img_array) - 1):
+            goal = (j, len(img_array) - 1)
+            break
     
     path = a_star(start, goal, h, img_array)
 
@@ -64,42 +70,38 @@ def a_star(start, goal, h, img_array):
     priority = 0
     open_set.put((priority, start))
     priority += 1
-    came_from = {}
 
+    came_from = {}
     g_score = {}
     f_score = {}
-    for i, row in enumerate(img_array):
-        for j, col in enumerate(img_array[i]):
-            if col == True:
+
+    for i in range(len(img_array)):
+        for j in range(len(img_array[i])):
+            if img_array[i][j] == True:
                 g_score[(i,j)] = 2**32-1
                 f_score[(i,j)] = 2**32-1
 
     g_score[start] = 0
     f_score[start] = h(start, goal)
 
-    while open_set.empty() == False:
+    while not open_set.empty():
         
         current = open_set.get()[1]
         if current == goal:
             return reconstruct_path(came_from, current)
-        
+
         current_neighbors = []
 
-        i = current[0]
-        j = current[1]
+        i, j = current
 
-        if j < len(img_array[0])-1:
-            if img_array[i][j+1]:
-                current_neighbors.append((i, j+1))
-        if j > 0:
-            if img_array[i][j-1]:
-                current_neighbors.append((i, j-1))
-        if i < len(img_array)-1:
-            if img_array[i+1][j]:
-                current_neighbors.append((i+1, j))
-        if i > 0:
-            if img_array[i-1][j]:
-                current_neighbors.append((i-1, j))
+        if j < len(img_array[0]) - 1 and img_array[i][j+1]:
+            current_neighbors.append((i, j+1))
+        if j > 0 and img_array[i][j-1]:
+            current_neighbors.append((i, j-1))
+        if i < len(img_array) - 1 and img_array[i+1][j]:
+            current_neighbors.append((i+1, j))
+        if i > 0 and img_array[i-1][j]:
+            current_neighbors.append((i-1, j))
         
         for neighbor in current_neighbors:
             tentative_g_score = g_score[current] + 1 # all edges are weight 1 here
@@ -110,6 +112,7 @@ def a_star(start, goal, h, img_array):
                 if neighbor not in open_set.queue:
                     open_set.put((priority, neighbor))
                     priority += 1
+
     return False
 
 if __name__ == '__main__':

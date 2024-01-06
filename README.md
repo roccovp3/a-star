@@ -1,0 +1,1 @@
+Takes in a monochrome bitmap file of the maze and outputs an RGB bitmap of the maze with the solution path painted green. I used https://keesiemeijer.github.io/maze-generator/#generate to generate test mazes.

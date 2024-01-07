@@ -1,10 +1,25 @@
 from queue import PriorityQueue
 from PIL import Image
 import numpy as np
+import pygame
+import maze
+
+pixel_size = 2
 
 def main():
-    img_array = parse_maze('maze.bmp')
-    print(img_array)
+    pygame.init()
+
+    while True:
+        gen_and_solve()
+
+def gen_and_solve():
+
+    img_array = maze.create_maze(200, 2000)
+    screen = pygame.display.set_mode((pixel_size*len(img_array[0]), pixel_size*len(img_array)))
+    icon_surface = pygame.image.load('map.bmp')
+    pygame.display.set_caption('A*')
+    pygame.display.set_icon(icon_surface)
+    img_solved_data = draw_maze(img_array, screen)
 
     start = (0, 0)
     goal = (0, 0)
@@ -27,18 +42,17 @@ def main():
             goal = (j, len(img_array) - 1)
             break
     
-    path = a_star(start, goal, h, img_array)
+    path = a_star(start, goal, h, img_array, screen)
 
-    img_solved = draw_solution(img_array, path)
-    img_solved.save('out.bmp')
-    return img_solved
+    img_solved = draw_solution(img_array, path, screen, img_solved_data)
+    #img_solved.save('out.bmp')
 
 def parse_maze(img_path):
     img = Image.open(img_path)
     img_array = np.array(img)
     return img_array
 
-def draw_solution(img_array, path):
+def draw_maze(img_array, screen):
     img_solved_data = [(0, 0, 0) for pixel in range(len(img_array)*len(img_array[0]))]
     for i in range(len(img_array)):
         for j in range(len(img_array[0])):
@@ -46,12 +60,22 @@ def draw_solution(img_array, path):
                 img_solved_data[len(img_array[0])*i+j] = (255, 255, 255)
             else:
                 img_solved_data[len(img_array[0])*i+j] = (0, 0, 0)
-            if (i, j) in path:
-                img_solved_data[len(img_array[0])*i+j] = (0, 255, 0)
+            pygame.draw.rect(screen, img_solved_data[len(img_array[0])*i+j], (pixel_size*j, pixel_size*i, pixel_size, pixel_size))
+    pygame.display.update()
+    return img_solved_data
+
+def draw_solution(img_array, path, screen, img_solved_data): 
+    for (i, j) in path:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+        img_solved_data[len(img_array[0])*i+j] = (0, 255, 0)
+        pygame.draw.rect(screen, (0, 255, 0), (pixel_size*j, pixel_size*i, pixel_size, pixel_size))
+        pygame.display.update((pixel_size*j, pixel_size*i, pixel_size, pixel_size))
     img_solved = Image.new(mode="RGB", size=(len(img_array), len(img_array[0])))
     img_solved.putdata(img_solved_data)
     return img_solved
-
 
 def h(node, goal):
     # Manhattan distance heuristic
@@ -65,7 +89,7 @@ def reconstruct_path(came_from, current):
         total_path.insert(0, current)
     return total_path
 
-def a_star(start, goal, h, img_array):
+def a_star(start, goal, h, img_array, screen):
     open_set = PriorityQueue()
     priority = 0
     open_set.put((priority, start))
@@ -85,7 +109,7 @@ def a_star(start, goal, h, img_array):
     f_score[start] = h(start, goal)
 
     while not open_set.empty():
-        
+        event_thread = 0
         current = open_set.get()[1]
         if current == goal:
             return reconstruct_path(came_from, current)
@@ -104,6 +128,7 @@ def a_star(start, goal, h, img_array):
             current_neighbors.append((i-1, j))
         
         for neighbor in current_neighbors:
+            pygame.draw.rect(screen, (255, 0, 0), (pixel_size*neighbor[1], pixel_size*neighbor[0], pixel_size, pixel_size))
             tentative_g_score = g_score[current] + 1 # all edges are weight 1 here
             if tentative_g_score < g_score[neighbor]:
                 came_from[neighbor] = current
@@ -112,7 +137,12 @@ def a_star(start, goal, h, img_array):
                 if neighbor not in open_set.queue:
                     open_set.put((priority, neighbor))
                     priority += 1
-
+        pygame.display.update((pixel_size*j, pixel_size*i, pixel_size, pixel_size))
+        if event_thread % 60 == 0:
+            for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        exit()
     return False
 
 if __name__ == '__main__':

@@ -1,7 +1,5 @@
 from queue import PriorityQueue
-from PIL import Image
-import numpy as np
-import pygame
+#!/usr/bin/python
 import maze
 import threading
 import time
@@ -9,6 +7,10 @@ import os
 import random
 
 os.environ["SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS"] = '1'
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = '1'
+
+import pygame
+
 PIXEL_SIZE = 2
 MAZE_SIZE = 200
 

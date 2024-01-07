@@ -9,16 +9,17 @@ pixel_size = 2
 def main():
     pygame.init()
 
-    while True:
-        gen_and_solve()
-
-def gen_and_solve():
-
     img_array = maze.create_maze(200, 2000)
     screen = pygame.display.set_mode((pixel_size*len(img_array[0]), pixel_size*len(img_array)))
     icon_surface = pygame.image.load('map.bmp')
     pygame.display.set_caption('A*')
     pygame.display.set_icon(icon_surface)
+
+    while True:
+        gen_and_solve(screen, img_array)
+
+def gen_and_solve(screen, img_array):
+
     img_solved_data = draw_maze(img_array, screen)
 
     start = (0, 0)

@@ -1,1 +1,1 @@
-Takes in a monochrome bitmap file of the maze and outputs an RGB bitmap of the maze with the solution path painted green. I used https://keesiemeijer.github.io/maze-generator/#generate to generate test mazes.
+Generates and solves mazes using the A* algorithm. Maze generation code in maze.py is from https://github.com/Jack92829/Maze-Generation/blob/master/ASCII%20Maze/ASCII-Maze.py

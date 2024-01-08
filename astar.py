@@ -1,5 +1,5 @@
-from queue import PriorityQueue
 #!/usr/bin/python
+from queue import PriorityQueue
 import maze
 import threading
 import time
